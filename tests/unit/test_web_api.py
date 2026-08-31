@@ -509,6 +509,7 @@ def test_full_app_routes_registered():
         "/api/v1/bars",
         "/api/v1/xdxr",
         "/api/v1/block",
+        "/api/v1/stock/industry",
         "/api/v1/chanlun",
         "/api/v1/announcements",
         "/api/v1/sina/financial-report",

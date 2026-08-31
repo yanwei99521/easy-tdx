@@ -15,6 +15,7 @@
 - [逐笔成交](#逐笔成交)
 - [财务与公司信息](#财务与公司信息)
 - [板块信息](#板块信息)
+- [Web API：股票所属行业](#web-api股票所属行业)
 - [资金流向](#资金流向)
 - [文件下载](#文件下载)
 - [市场统计](#市场统计)
@@ -321,6 +322,56 @@ c.get_block_info(filename: str) -> list[TdxBlock]
 | `block_zs.dat` | 行业/指数板块 |
 | `block_gn.dat` | 概念板块 |
 | `block_fg.dat` | 风格板块 |
+
+---
+
+## Web API：股票所属行业
+
+### GET `/api/v1/stock/industry`
+
+获取指定股票所属的行业，以及每个行业板块的当日涨跌幅。该接口属于 Web API，启动服务后可在
+`/docs`（Swagger UI）或 `/redoc`（ReDoc）中在线调试。
+
+**请求参数**：
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `market` | `string` | 是 | 市场代码：`SZ`（深市）、`SH`（沪市）、`BJ`（北交所） |
+| `code` | `string` | 是 | 6 位股票代码，如 `000001`、`600519` |
+
+**请求示例**：
+
+```bash
+curl "http://localhost:8000/api/v1/stock/industry?market=SH&code=600519"
+```
+
+**响应示例**：
+
+```json
+{
+  "data": [
+    {
+      "market": "SH",
+      "code": "600519",
+      "industry_code": "881130",
+      "industry_name": "酿酒",
+      "board_type": 12,
+      "close": 577.81,
+      "pre_close": 579.42,
+      "change_pct": -0.28
+    }
+  ],
+  "count": 1
+}
+```
+
+字段说明：`industry_code` 和 `industry_name` 是行业板块代码和名称；`close`、`pre_close`
+分别是行业板块当前收盘价和昨收价；`change_pct` 是按
+`(close - pre_close) / pre_close × 100` 计算的当日涨跌幅（百分比，保留两位小数）。
+一只股票可能返回多个行业层级，因此 `data` 可能包含多条记录。
+
+行业归属和行业行情每次请求都从 MAC 行情服务器实时获取，不使用本地缓存，避免跨交易日复用过期的
+行业关系或涨跌幅数据。若行情服务器返回的昨收价为 0，`change_pct` 将返回 `null`。
 
 ---
 
