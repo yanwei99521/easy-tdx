@@ -1051,6 +1051,10 @@ curl "http://localhost:8000/api/v1/board-mac/belong?market=SZ&code=000001"
 # 个股所属行业及行业今日涨跌幅
 curl "http://localhost:8000/api/v1/stock/industry?market=SZ&code=000001"
 
+# 同花顺公开网页的行业/概念板块（非官方 API，避免高频调用）
+# 688126 本地验证：最多返回 3 个概念板块，完整数量见 concept_total
+curl "http://127.0.0.1:8001/api/v1/ths/stock/associations?code=688126&concept_limit=3"
+
 # 板块摘要（含主力净流入、涨跌家数）
 curl "http://localhost:8000/api/v1/board-mac/summary?board_symbol=881001"
 

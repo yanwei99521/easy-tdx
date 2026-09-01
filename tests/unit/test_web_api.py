@@ -8,6 +8,25 @@ from __future__ import annotations
 
 import pytest
 
+
+def _mounted_paths(app):
+    """Return routes for both flattened and _IncludedRouter FastAPI versions."""
+    paths: list[str] = []
+    for route in app.routes:
+        if hasattr(route, "path"):
+            paths.append(route.path)
+            continue
+        original_router = getattr(route, "original_router", None)
+        include_context = getattr(route, "include_context", None)
+        if original_router is not None and include_context is not None:
+            paths.extend(
+                f"{include_context.prefix}{child.path}"
+                for child in original_router.routes
+                if hasattr(child, "path")
+            )
+    return paths
+
+
 # ---------------------------------------------------------------------------
 # Task 2: Schemas & Error Handling
 # ---------------------------------------------------------------------------
@@ -79,7 +98,7 @@ def test_create_app_returns_fastapi_instance():
     assert app.title == "easy-tdx API"
 
     # Check routers are mounted
-    routes = [r.path for r in app.routes]
+    routes = _mounted_paths(app)
     assert any("/api/v1/security" in r for r in routes)
     assert any("/api/v1/bars" in r for r in routes)
     assert any("/api/v1/chanlun" in r for r in routes)
@@ -503,13 +522,14 @@ def test_full_app_routes_registered():
     from easy_tdx.web import create_app
 
     app = create_app()
-    all_paths = [r.path for r in app.routes]
+    all_paths = _mounted_paths(app)
     expected_prefixes = [
         "/api/v1/security",
         "/api/v1/bars",
         "/api/v1/xdxr",
         "/api/v1/block",
         "/api/v1/stock/industry",
+        "/api/v1/ths/stock/associations",
         "/api/v1/chanlun",
         "/api/v1/announcements",
         "/api/v1/sina/financial-report",
@@ -535,3 +555,4 @@ def test_openapi_schema_generated():
     # they are verified in test_full_app_routes_registered instead.
     # Just ensure REST paths are present.
     assert "/api/v1/fund-flow" in schema["paths"]
+    assert "/api/v1/ths/stock/associations" in schema["paths"]

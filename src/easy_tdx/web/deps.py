@@ -2,11 +2,20 @@
 
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Any
 
 from fastapi import Request
 
 from easy_tdx.client import AsyncTdxClient
+
+
+@lru_cache(maxsize=1)
+def get_ths_web_client() -> Any:
+    """返回共享的同花顺公开网页客户端（仅行情快照短时缓存）。"""
+    from easy_tdx.ths_web import ThsWebClient
+
+    return ThsWebClient()
 
 
 def get_client(request: Request) -> AsyncTdxClient:

@@ -215,6 +215,7 @@ def _create_app(
     from easy_tdx.web.routers.sina import router as sina_router
     from easy_tdx.web.routers.stock_industry import router as stock_industry_router
     from easy_tdx.web.routers.strategies import router as strategies_router
+    from easy_tdx.web.routers.ths import router as ths_router
 
     app.include_router(market_router, prefix="/api/v1")
     app.include_router(bars_router, prefix="/api/v1")
@@ -227,6 +228,7 @@ def _create_app(
     app.include_router(mac_data_router, prefix="/api/v1")
     app.include_router(mac_quotes_router, prefix="/api/v1")
     app.include_router(stock_industry_router, prefix="/api/v1")
+    app.include_router(ths_router, prefix="/api/v1")
     # 扩展市场路由
     app.include_router(ex_market_router, prefix="/api/v1")
     # 技术指标路由
